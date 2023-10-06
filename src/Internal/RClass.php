@@ -73,22 +73,36 @@ class RClass
     }
 
     /**
-     * True if the type either implements the FromJsonData interface or directly uses the JsonSerialize trait
+     * True if the type either implements the FromJsonData interface or (in)directly uses the JsonSerialize trait
      */
     public function readsFromJson(): bool
     {
-        $traits = class_uses($this->rc->getName());
+        $traits = $this->classUsesNestedTrait($this->rc->getName());
 
         return array_key_exists(JsonSerialize::class, $traits) || $this->rc->implementsInterface(FromJsonData::class);
     }
 
     /**
-     * True if the type either implements the ToJsonData interface or directly uses the JsonSerialize trait
+     * True if the type either implements the ToJsonData interface or (in)directly uses the JsonSerialize trait
      */
     public function writesToJson(): bool
     {
-        $traits = class_uses($this->rc->getName());
+        $traits = $this->classUsesNestedTrait($this->rc->getName());
 
         return array_key_exists(JsonSerialize::class, $traits) || $this->rc->implementsInterface(ToJsonData::class);
+    }
+
+    /**
+     * Gets the traits used by the current class, and also recursively any traits used by those traits
+     */
+    public function classUsesNestedTrait(string $class): array
+    {
+        $traits = class_uses($class);
+
+        foreach ($traits as $trait) {
+            $traits = array_merge($traits, $this->classUsesNestedTrait($trait));
+        }
+
+        return $traits;
     }
 }

@@ -12,6 +12,8 @@ use Square\Pjson\Tests\Definitions\CatalogObject;
 use Square\Pjson\Tests\Definitions\Category;
 use Square\Pjson\Tests\Definitions\Child;
 use Square\Pjson\Tests\Definitions\Collector;
+use Square\Pjson\Tests\Definitions\JsonSerializeParent\ChildDocument;
+use Square\Pjson\Tests\Definitions\JsonSerializeParent\ParentDocument;
 use Square\Pjson\Tests\Definitions\MenuList;
 use Square\Pjson\Tests\Definitions\Privateer;
 use Square\Pjson\Tests\Definitions\Schedule;
@@ -308,6 +310,19 @@ final class SerializationTest extends TestCase
         // nested under `parent`.
         $data = new Child();
         $json = '{"identifier":null,"parent":{"id":null}}';
+
+        $this->assertEquals($this->comparableJson($json), $data->toJson());
+    }
+
+    public function testJsonSerializeParentTrait()
+    {
+        $data = new ParentDocument();
+
+        $child = new ChildDocument();
+        $child->bigInt = '14124124124124214124';
+        $data->childDocument = $child;
+
+        $json = '{"childDocument":{"big_int": "14124124124124214124"}}';
 
         $this->assertEquals($this->comparableJson($json), $data->toJson());
     }

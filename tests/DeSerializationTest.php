@@ -12,6 +12,8 @@ use Square\Pjson\Tests\Definitions\CatalogObject;
 use Square\Pjson\Tests\Definitions\Category;
 use Square\Pjson\Tests\Definitions\Collection;
 use Square\Pjson\Tests\Definitions\Collector;
+use Square\Pjson\Tests\Definitions\JsonSerializeParent\ChildDocument;
+use Square\Pjson\Tests\Definitions\JsonSerializeParent\ParentDocument;
 use Square\Pjson\Tests\Definitions\MenuList;
 use Square\Pjson\Tests\Definitions\Schedule;
 use Square\Pjson\Tests\Definitions\Privateer;
@@ -599,5 +601,22 @@ final class DeSerializationTest extends TestCase
         $this->expectException(MissingRequiredPropertyException::class);
 
         Token::fromJsonString($json);
+    }
+
+    public function testJsonSerializeParentTrait()
+    {
+        $json = '{"childDocument":{"big_int": "14124124124124214124"}}';
+
+        $collectionStructure = [
+            "@class" => ParentDocument::class,
+            "childDocument" => [
+                "@class" => ChildDocument::class,
+                "bigInt" => "14124124124124214124",
+            ]
+        ];
+
+        $document = ParentDocument::fromJsonString($json);
+
+        $this->assertEquals($collectionStructure, $this->export($document));
     }
 }
